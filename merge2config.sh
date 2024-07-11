@@ -52,33 +52,19 @@ for source_file in "$source_dir"/*.yaml; do
             }
             /^rules:/ {
                 print $0
-                found = 1
-                next
-            }
-            found && !inserted {
-                # 打印rules:后的第一行，并获取缩进
                 if (getline next_line > 0) {
                     print next_line
                     indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
                 } else {
                     indent = "  "
                 }
-                # 插入新行
                 for (line in lines) {
                     print indent line
                 }
-                inserted = 1
                 next
             }
             {
                 print $0
-            }
-            END {
-                if (!inserted && found) {
-                    for (line in lines) {
-                        print indent line
-                    }
-                }
             }
         ' "$target_file" > "$temp_file"
 
