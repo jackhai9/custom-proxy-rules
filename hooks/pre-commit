@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# 获取项目根目录
+project_root=$(git rev-parse --show-toplevel)
+
+# 在项目根目录执行 merge2config.sh 脚本
+"$project_root/merge2config.sh"
+
+# 检查脚本执行是否成功
+if [ $? -ne 0 ]; then
+  echo "merge2config.sh 脚本执行失败，提交中止。"
+  exit 1
+fi
+

@@ -9,7 +9,10 @@ target_dir="$HOME/.config/clash"
 # 遍历当前目录下的所有 YAML 文件
 for source_file in "$source_dir"/*.yaml; do
     # 读取源文件内容
-    content=$(cat "$source_file")
+    content=$(grep -v '^\s*#' "$source_file")
+
+    # 添加换行符到内容的前后
+    content="\n${content}\n"
 
     # 遍历目标目录下的所有 YAML 文件
     for target_file in "$target_dir"/*.yaml; do
