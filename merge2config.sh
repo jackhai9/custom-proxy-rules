@@ -12,7 +12,6 @@ for source_file in "$source_dir"/*.yaml; do
     content=$(grep -v '^\s*#' "$source_file")
 
     # 添加换行符到内容的前后
-    #content="\n${content}\n"
     #content=$(printf "\n%s\n" "$content")
 
     # 遍历目标目录下的所有 YAML 文件
