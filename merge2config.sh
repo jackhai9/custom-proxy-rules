@@ -8,8 +8,8 @@ target_dir="$HOME/.config/clash"
 
 # 遍历当前目录下的所有 YAML 文件
 for source_file in "$source_dir"/*.yaml; do
-    # 读取源文件内容，过滤掉注释行，并将内容保存到一个字符串中
-    content=$(grep -v '^\s*#' "$source_file" | sed ':a;N;$!ba;s/\n/\\n/g')
+    # 读取源文件内容，过滤掉注释行，并将内容保存到临时文件中
+    grep -v '^\s*#' "$source_file" > /tmp/source_content.yaml
 
     # 遍历目标目录下的所有 YAML 文件
     for target_file in "$target_dir"/*.yaml; do
@@ -17,16 +17,18 @@ for source_file in "$source_dir"/*.yaml; do
         temp_file=$(mktemp)
 
         # 使用 awk 处理文件内容并插入新内容
-        awk -v content="$content" '
+        awk -v source_file="/tmp/source_content.yaml" '
             function trim(s) {
                 sub(/^[ \t\r\n]+/, "", s);
                 sub(/[ \t\r\n]+$/, "", s);
                 return s;
             }
             BEGIN {
-                split(content, lines, "\\n")
-                for (i in lines) {
-                    lines[i] = trim(lines[i])
+                while ((getline line < source_file) > 0) {
+                    line = trim(line)
+                    if (line != "") {
+                        lines[line] = line
+                    }
                 }
             }
             /^rules:/ {
@@ -35,18 +37,12 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
-                existing_lines[trim($0)] = 1
-                print $0
                 while (getline > 0) {
-                    if (/^rules:/) {
-                        print $0
-                        next
-                    }
                     existing_lines[trim($0)] = 1
                     print $0
                 }
                 for (i in lines) {
-                    if (!(lines[i] in existing_lines)) {
+                    if (!(i in existing_lines)) {
                         if ($0 ~ /^  /) {
                             print "  " lines[i]
                         } else {
@@ -64,6 +60,9 @@ for source_file in "$source_dir"/*.yaml; do
         mv "$temp_file" "$target_file"
     done
 done
+
+# 删除临时文件
+rm /tmp/source_content.yaml
 
 echo "合并完成！"
 
