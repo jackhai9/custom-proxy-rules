@@ -66,4 +66,3 @@ for source_file in "$source_dir"/*.yaml; do
 done
 
 echo "合并完成！"
-
