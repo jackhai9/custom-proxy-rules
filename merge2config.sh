@@ -8,7 +8,7 @@ target_dir="$HOME/.config/clash"
 
 # 遍历当前目录下的所有 YAML 文件
 for source_file in "$source_dir"/*.yaml; do
-    # 读取源文件内容，过滤掉注释行并保留多行内容
+    # 读取源文件内容，过滤掉注释行
     content=$(grep -v '^\s*#' "$source_file")
 
     # 遍历目标目录下的所有 YAML 文件
@@ -28,38 +28,36 @@ for source_file in "$source_dir"/*.yaml; do
                 for (i in lines) {
                     lines[i] = trim(lines[i])
                 }
-                inserted = 0
             }
-            {
-                if (/^rules:/) {
+            /^rules:/ {
+                print $0
+                found = 1
+                next
+            }
+            found && !inserted {
+                existing_lines[trim($0)] = 1
+                print $0
+                while (getline > 0) {
+                    if (/^rules:/) {
+                        print $0
+                        next
+                    }
+                    existing_lines[trim($0)] = 1
                     print $0
-                    found = 1
-                    next
                 }
-                if (found && !inserted) {
-                    for (i in lines) {
-                        exists = 0
-                        for (j in existing_lines) {
-                            if (lines[i] == j) {
-                                exists = 1
-                                break
-                            }
-                        }
-                        if (!exists) {
-                            if ($0 ~ /^  /) {
-                                print "  " lines[i]
-                            } else {
-                                print lines[i]
-                            }
+                for (i in lines) {
+                    if (!(lines[i] in existing_lines)) {
+                        if ($0 ~ /^  /) {
+                            print "  " lines[i]
+                        } else {
+                            print lines[i]
                         }
                     }
-                    inserted = 1
                 }
-                if (found) {
-                    existing_lines[trim($0)] = 1
-                }
-                print $0
+                inserted = 1
+                next
             }
+            { print $0 }
         ' "$target_file" > "$temp_file"
 
         # 将临时文件内容写回目标文件
