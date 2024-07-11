@@ -19,15 +19,15 @@ for source_file in "$source_dir"/*.yaml; do
         # 使用 awk 处理文件内容并插入新内容
         awk -v source_file="/tmp/source_content.yaml" '
             function trim(s) {
-                sub(/^[ \t\r\n]+/, "", s)
-                sub(/[ \t\r\n]+$/, "", s)
-                return s
+                sub(/^[ \t\r\n]+/, "", s);
+                sub(/[ \t\r\n]+$/, "", s);
+                return s;
             }
             BEGIN {
                 while ((getline line < source_file) > 0) {
                     line = trim(line)
                     if (line != "") {
-                        new_lines[line] = line
+                        lines[line] = line
                     }
                 }
             }
@@ -37,37 +37,22 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
-                getline next_line
-                # 获取下一行的缩进
-                indent = ""
-                match(next_line, /^([ \t]+)/, arr)
-                if (length(arr) > 0) {
-                    indent = arr[1]
-                }
-                # 打印缩进和新行
-                for (line in new_lines) {
-                    if (!(line in existing_lines)) {
-                        print indent line
-                    }
-                }
-                inserted = 1
-                print next_line
-                next
-            }
-            {
-                if (found) {
-                    existing_lines[trim($0)] = 1
-                }
-                print $0
-            }
-            END {
-                if (!inserted && found) {
-                    for (line in new_lines) {
-                        if (!(line in existing_lines)) {
-                            print "  " line
+                for (i in lines) {
+                    if (!(lines[i] in existing_lines)) {
+                        if ($0 ~ /^  /) {
+                            print "  " lines[i]
+                        } else {
+                            print lines[i]
                         }
                     }
                 }
+                inserted = 1
+            }
+            {
+                if (found && !inserted) {
+                    existing_lines[trim($0)] = 1
+                }
+                print $0
             }
         ' "$target_file" > "$temp_file"
 
