@@ -28,6 +28,7 @@ for source_file in "$source_dir"/*.yaml; do
                 for (i in lines) {
                     lines[i] = trim(lines[i])
                 }
+                inserted = 0
             }
             /^rules:/ {
                 print $0
@@ -35,28 +36,23 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
-                # 读取当前段落中的每一行
-                while (getline > 0) {
-                    if ($0 ~ /^[^-]/) {
-                        leading_space = "  "
-                    } else {
-                        leading_space = ""
-                    }
-                    existing_lines[trim($0)] = 1
-                    if (/^[ \t]*$/) {
-                        break
-                    }
-                    print $0
-                }
-                # 插入新内容
                 for (i in lines) {
-                    if (!(lines[i] in existing_lines)) {
-                        print leading_space lines[i]
+                    if (lines[i] && !(lines[i] in existing_lines)) {
+                        if ($0 ~ /^  /) {
+                            print "  " lines[i]
+                        } else {
+                            print lines[i]
+                        }
                     }
                 }
                 inserted = 1
             }
-            { print $0 }
+            {
+                if (found) {
+                    existing_lines[trim($0)] = 1
+                }
+                print $0
+            }
         ' "$target_file" > "$temp_file"
 
         # 将临时文件内容写回目标文件
