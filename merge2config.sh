@@ -8,7 +8,7 @@ target_dir="$HOME/.config/clash"
 
 # 遍历当前目录下的所有 YAML 文件
 for source_file in "$source_dir"/*.yaml; do
-    # 读取源文件内容，过滤掉注释行
+    # 读取源文件内容，过滤掉注释行并保留多行内容
     content=$(grep -v '^\s*#' "$source_file")
 
     # 遍历目标目录下的所有 YAML 文件
@@ -18,17 +18,31 @@ for source_file in "$source_dir"/*.yaml; do
 
         # 使用awk处理文件内容并插入新内容
         awk -v content="$content" '
-            BEGIN { new_content = "\n" content "\n" }
+            BEGIN { 
+                split(content, lines, "\n")
+                for (i in lines) {
+                    insert_lines[i] = lines[i]
+                }
+            }
             /^rules:/ {
                 print $0
                 found=1
                 next
             }
             found && !inserted {
-                if ($0 ~ /^  /) {
-                    print "\n  " new_content "  \n"
-                } else {
-                    print new_content
+                for (i in insert_lines) {
+                    if ($0 == insert_lines[i]) {
+                        delete insert_lines[i]
+                    }
+                }
+                if (length(insert_lines) > 0) {
+                    for (i in insert_lines) {
+                        if ($0 ~ /^  /) {
+                            print "  " insert_lines[i]
+                        } else {
+                            print insert_lines[i]
+                        }
+                    }
                 }
                 inserted=1
             }
