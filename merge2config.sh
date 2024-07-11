@@ -56,11 +56,10 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
-                # 获取下一行的缩进
+                # 打印rules:后的第一行，并获取缩进
                 if (getline next_line > 0) {
-                    indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
-                    # 打印下一行以保留
                     print next_line
+                    indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
                 } else {
                     indent = "  "
                 }
