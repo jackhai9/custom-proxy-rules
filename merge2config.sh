@@ -56,28 +56,30 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
-                # 获取下一行并保留缩进
+                # 获取下一行的缩进
                 if (getline next_line > 0) {
                     indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
                     # 打印下一行以保留
                     print next_line
-                    # 插入新行
-                    for (line in lines) {
-                        print indent line
-                    }
-                    inserted = 1
                 } else {
                     indent = "  "
-                    # 插入新行
-                    for (line in lines) {
-                        print indent line
-                    }
-                    inserted = 1
                 }
+                # 插入新行
+                for (line in lines) {
+                    print indent line
+                }
+                inserted = 1
                 next
             }
             {
                 print $0
+            }
+            END {
+                if (!inserted && found) {
+                    for (line in lines) {
+                        print indent line
+                    }
+                }
             }
         ' "$target_file" > "$temp_file"
 
