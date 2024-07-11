@@ -26,7 +26,7 @@ for source_file in "$source_dir"/*.yaml; do
             }
             found && !inserted {
                 if ($0 ~ /^  /) {
-                    print "  " new_content
+                    print "\n  " new_content "  \n"
                 } else {
                     print new_content
                 }
