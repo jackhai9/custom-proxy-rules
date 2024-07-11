@@ -18,7 +18,6 @@ for source_file in "$source_dir"/*.yaml; do
 
         # 使用awk处理文件内容并插入新内容
         awk -v content="$content" '
-            BEGIN { new_content = "\n" content "\n" }
             /^rules:/ {
                 print $0
                 found=1
@@ -26,9 +25,9 @@ for source_file in "$source_dir"/*.yaml; do
             }
             found && !inserted {
                 if ($0 ~ /^  /) {
-                    print "\n  " new_content "  \n"
+                    print "  " content
                 } else {
-                    print new_content
+                    print content
                 }
                 inserted=1
             }
