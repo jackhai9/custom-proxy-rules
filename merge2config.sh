@@ -50,6 +50,15 @@ for source_file in "$source_dir"/*.yaml; do
                 }
                 print $0
             }
+            END {
+                if (!inserted && found) {
+                    for (line in new_lines) {
+                        if (!(line in existing_lines)) {
+                            print "  " line
+                        }
+                    }
+                }
+            }
         ' "$target_file" > "$temp_file"
 
         # 将临时文件内容写回目标文件
