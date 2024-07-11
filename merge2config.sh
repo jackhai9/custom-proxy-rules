@@ -27,7 +27,7 @@ for source_file in "$source_dir"/*.yaml; do
                 while ((getline line < source_file) > 0) {
                     line = trim(line)
                     if (line != "") {
-                        lines[line] = line
+                        new_lines[line] = 1
                     }
                 }
             }
@@ -37,23 +37,20 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
-                for (i in lines) {
-                    if (!(lines[i] in existing_lines)) {
-                        if ($0 ~ /^  /) {
-                            print "  " lines[i]
-                        } else {
-                            print lines[i]
-                        }
+                while (getline > 0) {
+                    current_line = trim($0)
+                    existing_lines[current_line] = 1
+                    print $0
+                }
+                for (line in new_lines) {
+                    if (!(line in existing_lines)) {
+                        print "  " line
                     }
                 }
                 inserted = 1
+                next
             }
-            {
-                if (found && !inserted) {
-                    existing_lines[trim($0)] = 1
-                }
-                print $0
-            }
+            { print $0 }
         ' "$target_file" > "$temp_file"
 
         # 将临时文件内容写回目标文件
