@@ -8,8 +8,8 @@ target_dir="$HOME/.config/clash"
 
 # 遍历当前目录下的所有 YAML 文件
 for source_file in "$source_dir"/*.yaml; do
-    # 读取源文件内容，过滤掉注释行
-    content=$(grep -v '^\s*#' "$source_file")
+    # 读取源文件内容，过滤掉注释行，并将内容保存到一个字符串中
+    content=$(grep -v '^\s*#' "$source_file" | sed ':a;N;$!ba;s/\n/\\n/g')
 
     # 遍历目标目录下的所有 YAML 文件
     for target_file in "$target_dir"/*.yaml; do
@@ -24,7 +24,7 @@ for source_file in "$source_dir"/*.yaml; do
                 return s;
             }
             BEGIN {
-                split(content, lines, "\n")
+                split(content, lines, "\\n")
                 for (i in lines) {
                     lines[i] = trim(lines[i])
                 }
