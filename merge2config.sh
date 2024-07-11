@@ -8,24 +8,34 @@ target_dir="$HOME/.config/clash"
 
 # 遍历当前目录下的所有 YAML 文件
 for source_file in "$source_dir"/*.yaml; do
-    # 读取源文件内容
+    # 读取源文件内容，过滤掉注释行
     content=$(grep -v '^\s*#' "$source_file")
 
     # 遍历目标目录下的所有 YAML 文件
     for target_file in "$target_dir"/*.yaml; do
-        # 检查rules:下面的几行前是否有两个空格
-        has_two_spaces=$(awk '/^rules:/ {found=1; next} found {if ($0 ~ /^  /) {print "yes"; exit} else {print "no"; exit}}' "$target_file")
+        # 创建一个临时文件用于存储修改后的内容
+        temp_file=$(mktemp)
 
-        # 根据检测结果插入内容
-        if [ "$has_two_spaces" == "yes" ]; then
-            # 插入带两个空格的内容
-            sed -i "/^rules:/a\\
-  $content" "$target_file"
-        else
-            # 插入不带空格的内容
-            sed -i "/^rules:/a\\
-$content" "$target_file"
-        fi
+        # 使用awk处理文件内容并插入新内容
+        awk -v content="$content" '
+            /^rules:/ {
+                print $0
+                found=1
+                next
+            }
+            found && !inserted {
+                if ($0 ~ /^  /) {
+                    print "  " content
+                } else {
+                    print content
+                }
+                inserted=1
+            }
+            { print $0 }
+        ' "$target_file" > "$temp_file"
+
+        # 将临时文件内容写回目标文件
+        mv "$temp_file" "$target_file"
     done
 done
 
