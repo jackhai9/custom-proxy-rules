@@ -8,7 +8,7 @@ target_dir="$HOME/.config/clash"
 
 # 遍历当前目录下的所有 YAML 文件
 for source_file in "$source_dir"/*.yaml; do
-    # 读取源文件内容，过滤掉注释行
+    # 读取源文件内容，过滤掉注释行并保留多行内容
     content=$(grep -v '^\s*#' "$source_file")
 
     # 遍历目标目录下的所有 YAML 文件
@@ -35,19 +35,20 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
+                # 读取当前段落中的每一行
                 while (getline > 0) {
-                    if ($0 ~ /^  /) {
+                    if ($0 ~ /^[^-]/) {
                         leading_space = "  "
                     } else {
                         leading_space = ""
                     }
                     existing_lines[trim($0)] = 1
-                    if (!/^\s*$/) {
-                        print $0
-                    } else {
+                    if (/^[ \t]*$/) {
                         break
                     }
+                    print $0
                 }
+                # 插入新内容
                 for (i in lines) {
                     if (!(lines[i] in existing_lines)) {
                         print leading_space lines[i]
