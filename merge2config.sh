@@ -30,24 +30,31 @@ for source_file in "$source_dir"/*.yaml; do
                 }
                 inserted = 0
             }
-            /^rules:/ {
-                print $0
-                found = 1
-                next
-            }
-            found && !inserted {
-                for (i in lines) {
-                    if (lines[i] && !(lines[i] in existing_lines)) {
-                        if ($0 ~ /^  /) {
-                            print "  " lines[i]
-                        } else {
-                            print lines[i]
+            {
+                if (/^rules:/) {
+                    print $0
+                    found = 1
+                    next
+                }
+                if (found && !inserted) {
+                    for (i in lines) {
+                        exists = 0
+                        for (j in existing_lines) {
+                            if (lines[i] == j) {
+                                exists = 1
+                                break
+                            }
+                        }
+                        if (!exists) {
+                            if ($0 ~ /^  /) {
+                                print "  " lines[i]
+                            } else {
+                                print lines[i]
+                            }
                         }
                     }
+                    inserted = 1
                 }
-                inserted = 1
-            }
-            {
                 if (found) {
                     existing_lines[trim($0)] = 1
                 }
