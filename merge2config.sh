@@ -27,7 +27,7 @@ for source_file in "$source_dir"/*.yaml; do
                 while ((getline line < source_file) > 0) {
                     line = trim(line)
                     if (line != "") {
-                        lines[line] = line
+                        lines[line] = 1
                     }
                 }
             }
@@ -36,26 +36,22 @@ for source_file in "$source_dir"/*.yaml; do
                 found = 1
                 next
             }
-            found && !inserted {
-                # 获取下一行
-                getline next_line
-                # 获取缩进
-                indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
-                # 插入新行并检查重复
-                for (line in lines) {
-                    if (!(line in existing_lines)) {
-                        print indent line
-                    }
-                }
-                inserted = 1
-                print next_line
-                next
-            }
             {
-                if (found) {
+                if (found && !inserted) {
                     existing_lines[trim($0)] = 1
                 }
-                print $0
+                if (found && inserted) {
+                    print $0
+                }
+            }
+            END {
+                if (found) {
+                    for (line in lines) {
+                        if (!(line in existing_lines)) {
+                            print "  " line
+                        }
+                    }
+                }
             }
         ' "$target_file" > "$temp_file"
 
