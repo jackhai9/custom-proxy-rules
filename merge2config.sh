@@ -19,9 +19,9 @@ for source_file in "$source_dir"/*.yaml; do
         # 使用 awk 处理文件内容并插入新内容
         awk -v source_file="/tmp/source_content.yaml" '
             function trim(s) {
-                sub(/^[ \t\r\n]+/, "", s);
-                sub(/[ \t\r\n]+$/, "", s);
-                return s;
+                sub(/^[ \t\r\n]+/, "", s)
+                sub(/[ \t\r\n]+$/, "", s)
+                return s
             }
             BEGIN {
                 while ((getline line < source_file) > 0) {
@@ -39,8 +39,11 @@ for source_file in "$source_dir"/*.yaml; do
             found && !inserted {
                 getline next_line
                 # 获取下一行的缩进
-                match(next_line, /^([ \t]*)/, arr)
-                indent = arr[1]
+                indent = ""
+                match(next_line, /^([ \t]+)/, arr)
+                if (length(arr) > 0) {
+                    indent = arr[1]
+                }
                 # 打印缩进和新行
                 for (line in new_lines) {
                     if (!(line in existing_lines)) {
