@@ -8,7 +8,7 @@ clash的配置文件，一般是更新服务商的订阅地址时自动拉取回
 
 此项目就是解决这个问题，使用步骤：
 
-1. clone此项目后，命令行执行：`bash setup-hooks.sh`；
+1. clone此项目后，命令行执行：`bash setup-hooks.sh`、`chmod +x .git/hooks/pre-commit`、`chmod +x merge2config.sh`
 2. 在custom-rules.yaml文件中添加自定义规则；
 3. 提交到github；
 4. 点击clash的`Reload config`按钮（快捷键command+R）重新加载配置文件；
