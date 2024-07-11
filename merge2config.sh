@@ -13,11 +13,30 @@ for source_file in "$source_dir"/*.yaml; do
 
     # 遍历目标目录下的所有 YAML 文件
     for target_file in "$target_dir"/*.yaml; do
+        # 创建一个临时文件用于存储过滤后的源文件内容
+        filtered_source=$(mktemp)
+
+        # 使用 awk 处理过滤操作
+        awk '
+            NR==FNR { existing[trim($0)] = 1; next }
+            {
+                line = $0
+                sub(/^[ \t\r\n]+/, "", line)
+                sub(/[ \t\r\n]+$/, "", line)
+                if (!(line in existing)) print $0
+            }
+            function trim(s) {
+                sub(/^[ \t\r\n]+/, "", s)
+                sub(/[ \t\r\n]+$/, "", s)
+                return s
+            }
+        ' "$target_file" /tmp/source_content.yaml > "$filtered_source"
+
         # 创建一个临时文件用于存储修改后的内容
         temp_file=$(mktemp)
 
         # 使用 awk 处理文件内容并插入新内容
-        awk -v source_file="/tmp/source_content.yaml" '
+        awk -v source_file="$filtered_source" '
             function trim(s) {
                 sub(/^[ \t\r\n]+/, "", s);
                 sub(/[ \t\r\n]+$/, "", s);
@@ -27,7 +46,7 @@ for source_file in "$source_dir"/*.yaml; do
                 while ((getline line < source_file) > 0) {
                     line = trim(line)
                     if (line != "") {
-                        new_lines[line] = line
+                        lines[line] = line
                     }
                 }
             }
@@ -41,7 +60,7 @@ for source_file in "$source_dir"/*.yaml; do
                 getline next_line
                 indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
                 # 插入新行并检查重复
-                for (line in new_lines) {
+                for (line in lines) {
                     if (!(line in existing_lines)) {
                         print indent line
                         existing_lines[line] = 1
@@ -61,6 +80,8 @@ for source_file in "$source_dir"/*.yaml; do
 
         # 将临时文件内容写回目标文件
         mv "$temp_file" "$target_file"
+        # 删除过滤后的临时文件
+        rm "$filtered_source"
     done
 done
 
