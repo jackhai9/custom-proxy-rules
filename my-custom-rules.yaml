@@ -3,7 +3,6 @@
 # 此脚本的功能是：把本文件的所有内容，插入到 $HOME/.config/clash/*.yaml 所有yaml的“rules:”下的第一行。
 - DOMAIN-SUFFIX,velodata.app,DIRECT
 - DOMAIN-SUFFIX,coinglass.com,DIRECT
-- DOMAIN-SUFFIX,github.com,DIRECT
 - DOMAIN-SUFFIX,binance.com,DIRECT
 - DOMAIN-SUFFIX,xxxxx.com,DIRECT
 - DOMAIN-SUFFIX,yyyyy.com,DIRECT
