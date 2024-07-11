@@ -16,39 +16,46 @@ for source_file in "$source_dir"/*.yaml; do
         # 创建一个临时文件用于存储修改后的内容
         temp_file=$(mktemp)
 
-        # 使用awk处理文件内容并插入新内容
+        # 使用 awk 处理文件内容并插入新内容
         awk -v content="$content" '
+            function trim(s) {
+                sub(/^[ \t\r\n]+/, "", s);
+                sub(/[ \t\r\n]+$/, "", s);
+                return s;
+            }
             BEGIN {
                 split(content, lines, "\n")
                 for (i in lines) {
-                    insert_lines[lines[i]] = 1
+                    lines[i] = trim(lines[i])
                 }
             }
             /^rules:/ {
                 print $0
-                found=1
+                found = 1
                 next
             }
             found && !inserted {
+                existing_lines[trim($0)] = 1
+                print $0
                 while (getline > 0) {
-                    if ($0 in insert_lines) {
-                        delete insert_lines[$0]
+                    if (/^rules:/) {
+                        print $0
+                        next
                     }
-                    if (/^[^ ]/) {
-                        break
-                    }
+                    existing_lines[trim($0)] = 1
                     print $0
                 }
-                if (length(insert_lines) > 0) {
-                    for (line in insert_lines) {
-                        if (/^  /) {
-                            print "  " line
+                for (i in lines) {
+                    if (!(lines[i] in existing_lines)) {
+                        if ($0 ~ /^  /) {
+                            print "  " lines[i]
                         } else {
-                            print line
+                            print lines[i]
                         }
                     }
                 }
-                inserted=1
+                inserted = 1
+                next
             }
             { print $0 }
         ' "$target_file" > "$temp_file"
