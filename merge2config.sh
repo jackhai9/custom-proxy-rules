@@ -35,27 +35,25 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
-                existing_lines[trim($0)] = 1
-                print $0
                 while (getline > 0) {
-                    if (/^rules:/) {
-                        print $0
-                        next
+                    if ($0 ~ /^  /) {
+                        leading_space = "  "
+                    } else {
+                        leading_space = ""
                     }
                     existing_lines[trim($0)] = 1
-                    print $0
+                    if (!/^\s*$/) {
+                        print $0
+                    } else {
+                        break
+                    }
                 }
                 for (i in lines) {
                     if (!(lines[i] in existing_lines)) {
-                        if ($0 ~ /^  /) {
-                            print "  " lines[i]
-                        } else {
-                            print lines[i]
-                        }
+                        print leading_space lines[i]
                     }
                 }
                 inserted = 1
-                next
             }
             { print $0 }
         ' "$target_file" > "$temp_file"
@@ -66,3 +64,4 @@ for source_file in "$source_dir"/*.yaml; do
 done
 
 echo "合并完成！"
+
