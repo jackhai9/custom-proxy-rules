@@ -59,21 +59,15 @@ for source_file in "$source_dir"/*.yaml; do
                 # 获取下一行的缩进
                 getline next_line
                 indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
-                # 插入新行并检查重复
+                # 插入新行
                 for (line in lines) {
-                    if (!(line in existing_lines)) {
-                        print indent line
-                        existing_lines[line] = 1
-                    }
+                    print indent line
                 }
                 inserted = 1
                 print next_line
                 next
             }
             {
-                if (found) {
-                    existing_lines[trim($0)] = 1
-                }
                 print $0
             }
         ' "$target_file" > "$temp_file"
