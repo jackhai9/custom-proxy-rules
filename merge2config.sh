@@ -27,7 +27,7 @@ for source_file in "$source_dir"/*.yaml; do
                 while ((getline line < source_file) > 0) {
                     line = trim(line)
                     if (line != "") {
-                        lines[line] = line
+                        new_lines[line] = line
                     }
                 }
             }
@@ -41,7 +41,7 @@ for source_file in "$source_dir"/*.yaml; do
                 getline next_line
                 indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
                 # 插入新行并检查重复
-                for (line in lines) {
+                for (line in new_lines) {
                     if (!(line in existing_lines)) {
                         print indent line
                         existing_lines[line] = 1
