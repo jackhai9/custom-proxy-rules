@@ -21,7 +21,7 @@ for source_file in "$source_dir"/*.yaml; do
             BEGIN { 
                 split(content, lines, "\n")
                 for (i in lines) {
-                    insert_lines[i] = lines[i]
+                    insert_lines[lines[i]] = 1
                 }
             }
             /^rules:/ {
@@ -30,17 +30,21 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
-                for (i in insert_lines) {
-                    if ($0 == insert_lines[i]) {
-                        delete insert_lines[i]
+                while (getline > 0) {
+                    if ($0 in insert_lines) {
+                        delete insert_lines[$0]
                     }
+                    if (/^[^ ]/) {
+                        break
+                    }
+                    print $0
                 }
                 if (length(insert_lines) > 0) {
-                    for (i in insert_lines) {
-                        if ($0 ~ /^  /) {
-                            print "  " insert_lines[i]
+                    for (line in insert_lines) {
+                        if (/^  /) {
+                            print "  " line
                         } else {
-                            print insert_lines[i]
+                            print line
                         }
                     }
                 }
