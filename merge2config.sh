@@ -59,6 +59,7 @@ for source_file in "$source_dir"/*.yaml; do
                 # 获取下一行的缩进
                 if (getline next_line > 0) {
                     indent = substr(next_line, 1, match(next_line, /[^ \t]/) - 1)
+                    # 打印下一行以保留
                     print next_line
                 } else {
                     indent = "  "
