@@ -37,19 +37,25 @@ for source_file in "$source_dir"/*.yaml; do
                 next
             }
             found && !inserted {
+                getline next_line
+                # 获取下一行的缩进
+                indent = ""
+                match(next_line, /^([ \t]+)/, arr)
+                if (length(arr) > 0) {
+                    indent = arr[1]
+                }
+                # 插入新行并检查重复
                 for (i in lines) {
-                    if (!(lines[i] in existing_lines)) {
-                        if ($0 ~ /^  /) {
-                            print "  " lines[i]
-                        } else {
-                            print lines[i]
-                        }
+                    if (!(i in existing_lines)) {
+                        print indent lines[i]
                     }
                 }
                 inserted = 1
+                print next_line
+                next
             }
             {
-                if (found && !inserted) {
+                if (found) {
                     existing_lines[trim($0)] = 1
                 }
                 print $0
