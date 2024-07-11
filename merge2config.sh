@@ -36,20 +36,19 @@ for source_file in "$source_dir"/*.yaml; do
                 found = 1
                 next
             }
+            found && !inserted {
+                for (line in new_lines) {
+                    if (!(line in existing_lines)) {
+                        print "  " line
+                    }
+                }
+                inserted = 1
+            }
             {
-                if (found && !inserted) {
+                if (found) {
                     existing_lines[trim($0)] = 1
                 }
                 print $0
-            }
-            END {
-                if (found && !inserted) {
-                    for (line in new_lines) {
-                        if (!(line in existing_lines)) {
-                            print "  " new_lines[line]
-                        }
-                    }
-                }
             }
         ' "$target_file" > "$temp_file"
 
