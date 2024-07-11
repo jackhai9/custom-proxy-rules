@@ -20,7 +20,10 @@ for source_file in "$source_dir"/*.yaml; do
         # 插入内容到rules:下的第一行
         #sed -i '/^rules:/a\'"$content" "$target_file"
         #sed -i "/^rules:/a\\${content}" "$target_file"
-        sed -i -e '/^rules:/a\'$'\n'"$content"$'\n' "$target_file"
+        #sed -i -e '/^rules:/a\'$'\n'"$content"$'\n' "$target_file"
+        sed -i '' -e "/^rules:/a\\
+$content
+" "$target_file"
     done
 done
 
