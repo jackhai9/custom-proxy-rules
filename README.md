@@ -19,7 +19,7 @@ clash的配置文件，一般是更新服务商的订阅地址时自动拉取回
 
 ### 原理
 
-解释下工作原理：利用git提供的pre-commit钩子，在commit时把custom-rules.yaml文件中自定义的规则添加到`$HOME/.config/clash`目录下所有yaml文件的`rules:`下面，手动reload下clash的配置文件即可。
+此项目的工作原理：利用git提供的pre-commit钩子，在commit时把custom-rules.yaml文件中自定义的规则添加到`$HOME/.config/clash`目录下所有yaml文件的`rules:`下面，手动reload下clash的配置文件即可。
 
 以后需要新增自定义规则时，执行步骤234即可。
 
