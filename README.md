@@ -8,10 +8,10 @@ clash的配置文件，一般是更新服务商的订阅地址时自动拉取回
 
 此项目就是解决这个问题，使用步骤：
 
-1. clone此项目后，命令行执行：`bash setup-hooks.sh`、`chmod +x .git/hooks/pre-commit`、`chmod +x merge2config.sh`
-2. 在custom-rules.yaml文件中添加自定义规则；
-3. 提交到github；
-4. 点击clash的`Reload config`按钮（快捷键command+R）重新加载配置文件；
+1. 手动 -- 克隆仓库，命令行执行：`bash setup-hooks.sh`、`chmod +x .git/hooks/pre-commit`、`chmod +x merge2config.sh`
+2. 手动 -- 在custom-rules.yaml文件中添加自定义规则；
+3. 手动 -- 提交修改到Github；
+4. 可选 -- 如果没有自动生效，可点击clash的 `Reload config`按钮（快捷键command+R）重新加载配置文件；
 
 搞定！
 
@@ -19,11 +19,11 @@ clash的配置文件，一般是更新服务商的订阅地址时自动拉取回
 
 ### 原理
 
-此项目的工作原理：利用git提供的pre-commit钩子，在commit时把custom-rules.yaml文件中自定义的规则添加到`$HOME/.config/clash`目录下所有yaml文件的`rules:`下面，手动reload下clash的配置文件即可。
+此项目的工作原理：利用git提供的pre-commit钩子，在commit时把custom-rules.yaml文件中自定义的规则添加到 `$HOME/.config/clash`目录下所有yaml文件的 `rules:`下面，手动reload下clash的配置文件即可。
 
-以后需要新增自定义规则时，执行步骤234即可。
+以后需要新增自定义规则时，执行步骤23即可。
 
-> custom-rules.yaml中的配置项进行修改或删除，还不支持自动修改或删除clash配置文件中的对应配置项，只能手动去更新clash配置文件 或者 更新服务商提供的订阅地址让其重置clash配置文件再执行步骤234即可。
+> custom-rules.yaml中的配置项进行修改或删除，还不支持自动修改或删除clash配置文件中的对应配置项，只能手动去更新clash配置文件 或者 更新服务商提供的订阅地址让其重置clash配置文件再执行步骤23即可。
 
 ### 其他
 
