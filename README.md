@@ -4,6 +4,8 @@
   <a href="README.zh-CN.md">简体中文</a> | English
 </p>
 
+> Legacy: this workflow targeted the old `~/.config/clash` profile layout and is no longer used by the current ClashX Meta setup. The repository is kept as historical reference.
+
 This repository keeps custom Clash proxy rules in Git and applies them to local Clash YAML profiles through a pre-commit hook. It is designed for personal rule maintenance when subscription updates would otherwise overwrite manual edits.
 
 ## Problem
