@@ -1,30 +1,45 @@
-## 如何优雅地为 Clash 添加自定义代理规则？
+# Custom Proxy Rules
 
-### 痛点
+<p align="center">
+  <a href="README.zh-CN.md">简体中文</a> | English
+</p>
 
-clash的配置文件，一般是更新服务商的订阅地址时自动拉取回来的，里面的配置信息和分类规则都是服务商写死的。当需要走一些自定义的规则时，手动修改配置文件只能暂时解决问题，以后再更新订阅地址时又会自动拉取并重置配置文件，导致之前手动修改的配置项丢失。
+This repository keeps custom Clash proxy rules in Git and applies them to local Clash YAML profiles through a pre-commit hook. It is designed for personal rule maintenance when subscription updates would otherwise overwrite manual edits.
 
-### 解决
+## Problem
 
-此项目就是解决这个问题，使用步骤：
+Clash profiles are often regenerated from provider subscriptions. Manual edits to those generated YAML files are easy to lose after the next subscription refresh.
 
-1. 手动 -- 克隆仓库，命令行执行：`bash setup-hooks.sh`、`chmod +x .git/hooks/pre-commit`、`chmod +x merge2config.sh`
-2. 手动 -- 在custom-rules.yaml文件中添加自定义规则；
-3. 手动 -- 提交修改到Github；
-4. 可选 -- 如果没有自动生效，可点击clash的 `Reload config`按钮（快捷键command+R）重新加载配置文件；
+## Approach
 
-搞定！
+Keep personal rules in this repository, then let the hook merge those rules into local Clash config files before commit.
 
-> custom-rules这个文件名不是必须的，你也可以起其他名称，也可以添加一个或多个别的yaml文件
+Current source rule file:
 
-### 原理
+- `custom-rules.yaml`
 
-此项目的工作原理：利用git提供的pre-commit钩子，在commit时把custom-rules.yaml文件中自定义的规则添加到 `$HOME/.config/clash`目录下所有yaml文件的 `rules:`下面，手动reload下clash的配置文件即可。
+Local target directory:
 
-以后需要新增自定义规则时，执行步骤23即可。
+- `$HOME/.config/clash/*.yaml`
 
-> custom-rules.yaml中的配置项进行修改或删除，还不支持自动修改或删除clash配置文件中的对应配置项，只能手动去更新clash配置文件 或者 更新服务商提供的订阅地址让其重置clash配置文件再执行步骤23即可。
+## Setup
 
-### 其他
+```bash
+bash setup-hooks.sh
+chmod +x .git/hooks/pre-commit
+chmod +x merge2config.sh
+```
 
-也可以参考其他方案：[v2ex的一个方案](https://www.v2ex.com/t/949462)
+After setup, edit `custom-rules.yaml` and commit the change. The pre-commit hook runs `merge2config.sh`, which inserts missing rules under the `rules:` section of local Clash YAML files.
+
+If Clash does not pick up the changes automatically, reload the config from the Clash UI.
+
+## Notes
+
+- Rule insertion is additive.
+- Removing or changing a rule in `custom-rules.yaml` does not automatically remove or rewrite existing local Clash profile entries.
+- Review the generated local Clash config before relying on new routing behavior.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
